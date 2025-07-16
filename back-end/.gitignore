@@ -1,0 +1,10 @@
+# Environment
+.env
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# Logs and cache
+*.log
+.cache/

@@ -1,1 +1,12 @@
-node_modules
+# Environment
+.env
+.env.local
+
+# Dependencies and builds
+node_modules/
+build/
+dist/
+
+# IDE/Editor files
+.vscode/
+.idea/
