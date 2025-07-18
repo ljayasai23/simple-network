@@ -1,24 +1,62 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import './Auth.css';
 
 function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
-      const response = await axios.post('http://localhost:5000/auth/login', {
-        username,
-        password
-      });
-      alert(`Welcome, ${response.data.user.username}!`);
-      navigate('/'); // Redirect after login
+      console.log('Sending login request...'); // Debug log
+      const response = await axios.post(
+        `${API_URL}/auth/login`,
+        formData,
+        { 
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 5000
+        }
+      );
+
+      console.log('Login response:', response.data); // Debug log
+
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        console.log('Token stored, navigating...'); // Debug log
+        alert('Login successful!');
+        navigate('/dashboard');
+        console.log('Navigation should have happened'); // Debug log
+      } else {
+        throw new Error('No token received');
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      console.error('Login error:', err); // Debug log
+      setError(
+        err.response?.data?.message || 
+        err.message || 
+        'Login failed. Please try again.'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -26,24 +64,31 @@ function Login() {
     <div className="auth-form">
       <h2>Login</h2>
       {error && <p className="error">{error}</p>}
+      
       <form onSubmit={handleSubmit}>
         <input
           type="text"
+          name="username"
           placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={formData.username}
+          onChange={handleChange}
           required
+          disabled={loading}
         />
         <input
           type="password"
+          name="password"
           placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={handleChange}
           required
+          disabled={loading}
         />
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
-      <p>Don't have an account? <a href="/signup">Sign up</a></p>
+      <p>Don't have an account? <Link to="/signup">Sign up</Link></p>
     </div>
   );
 }

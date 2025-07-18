@@ -2,6 +2,7 @@
   "name": "simple-network",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:5000",
   "dependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
     "@testing-library/dom": "^10.4.0",
@@ -45,4 +46,5 @@
   "devDependencies": {
     "source-map-loader": "^5.0.0"
   }
+  
 }
